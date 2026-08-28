@@ -139,9 +139,12 @@ def engineer_quality_features(
     )[0]
     qmetrics["mad_ratio"] = _mad_ratio_all_units(qmetrics.index, we, spike_amp)
 
-    # spikeinterface's unit_ids come back as strings; normalize to int to
-    # match the caller-supplied single_unit_ids
+    # spikeinterface's unit_ids come back as strings (e.g. Kilosort4 output);
+    # normalize both sides to int so callers can pass single_unit_ids as
+    # either an int array (from a CSV) or the sorting extractor's own
+    # (string) unit_ids array
     qmetrics.index = qmetrics.index.astype(int)
+    single_unit_ids = np.asarray([int(u) for u in single_unit_ids])
 
     missing = set(single_unit_ids) - set(qmetrics.index)
     if missing:
