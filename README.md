@@ -15,13 +15,20 @@ cross-validated precision/recall.
 pip install -e .
 ```
 
-## Demo notebook
+## Demo notebooks
 
-`demo/demo_01.ipynb` runs the full pipeline against the real dataset produced
-by `spikebias`'s `notebooks/2_results_editorial_requests/fig5e.ipynb` (not
-bundled with this repo). To run it, use the same conda/mamba environment
-`spikebias` itself uses, which pins the exact package versions (notably
-`spikeinterface==0.100.8`) the recorded fidelity check depends on:
+- `demo/demo_01.ipynb` runs the full pipeline (`spikecurate.run`) against
+  the real dataset produced by `spikebias`'s
+  `notebooks/2_results_editorial_requests/fig5e.ipynb`.
+- `demo/demo_02.ipynb` is a focused walkthrough of the classifier's own API
+  underneath `run` - `train`, `crossval_evaluate`, `predict`, `score` -
+  reusing the same pre-computed waveform extractor to skip straight to a
+  `dataset` of engineered features.
+
+Neither dataset is bundled with this repo. To run either notebook, use the
+same conda/mamba environment `spikebias` itself uses, which pins the exact
+package versions (notably `spikeinterface==0.100.8`) `demo_01.ipynb`'s
+recorded fidelity check depends on:
 
 ```bash
 # create the env (same spec as spikebias's envs/spikebias.yml)
@@ -33,10 +40,10 @@ pip install -e .
 
 # register it as a Jupyter kernel and launch
 python -m ipykernel install --user --name spikebias --display-name spikebias
-jupyter notebook demo/demo_01.ipynb
+jupyter notebook demo/demo_01.ipynb  # or demo/demo_02.ipynb
 ```
 
-Update `SPIKEBIAS_DATASET_DIR` near the top of the notebook if your
+Update `SPIKEBIAS_DATASET_DIR` near the top of each notebook if your
 `spikebias` checkout isn't at `/home/steeve/steeve/epfl/code/spikebias`.
 
 ## Usage
