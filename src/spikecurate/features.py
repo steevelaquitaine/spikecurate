@@ -13,6 +13,24 @@ import spikeinterface as si
 import spikeinterface.core.template_tools as ttools
 from spikeinterface import comparison
 from spikeinterface.qualitymetrics import compute_quality_metrics as qm
+import warnings
+
+# Units firing these warnings are ignored
+warnings.filterwarnings("ignore", message="Versions are not the same.*")
+warnings.filterwarnings("ignore", message="Degrees of freedom <= 0 for slice")
+warnings.filterwarnings("ignore", message="invalid value encountered in divide")
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    message="In a future version, `df.iloc\\[:, i\\] = newvals`.*",
+)
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    module="spikeinterface.qualitymetrics.quality_metric_calculator",
+)
+np.seterr(invalid="ignore", divide="ignore")
+
 
 logger = logging.getLogger(__name__)
 
