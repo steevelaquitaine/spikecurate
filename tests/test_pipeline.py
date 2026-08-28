@@ -44,6 +44,8 @@ def toy_data(tmp_path):
 
 
 def test_run_pipeline_end_to_end(toy_data):
+    example_ids = toy_data["single_unit_ids"][:3]
+
     result = spikecurate.run(
         recording=toy_data["recording"],
         sorting_true=toy_data["sorting_true"],
@@ -52,6 +54,7 @@ def test_run_pipeline_end_to_end(toy_data):
         single_unit_ids=toy_data["single_unit_ids"],
         good_unit_ids=toy_data["good_unit_ids"],
         bad_unit_ids=toy_data["bad_unit_ids"],
+        predict_unit_ids=example_ids,
         eval_seeds=np.arange(0, 5, 1),
         job_kwargs=dict(n_jobs=1, progress_bar=False),
     )
@@ -66,3 +69,17 @@ def test_run_pipeline_end_to_end(toy_data):
     stats = result["results"]["metric_stats"]
     assert 0 <= stats["precision_median"] <= 1
     assert 0 <= stats["recall_median"] <= 1
+
+    model = result["model"]
+    assert model.is_trained
+
+    predictions = result["predictions"]
+    assert list(predictions.index) == [int(u) for u in example_ids]
+    assert set(predictions["predicted_quality"]) <= {"good", "bad"}
+    assert ((predictions["probability"] >= 0) & (predictions["probability"] <= 1)).all()
+
+    # model.predict() is also usable standalone, outside run()
+    example_ids_int = [int(u) for u in example_ids]
+    standalone = model.predict(dataset.loc[example_ids_int, model.predictors])
+    pd_testing_equal = (standalone["predicted_label"] == predictions["predicted_label"]).all()
+    assert pd_testing_equal

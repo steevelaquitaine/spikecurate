@@ -32,6 +32,7 @@ def run(
     good_unit_ids: np.ndarray,
     bad_unit_ids: np.ndarray,
     *,
+    predict_unit_ids: np.ndarray = None,
     delta_time: float = 1.3,
     n_components_pca: int = 5,
     load_we_if_exists: bool = False,
@@ -59,6 +60,10 @@ def run(
         bad_unit_ids: subset of `single_unit_ids` labeled poorly-sorted -
             negative class for training. Every id in `single_unit_ids` must
             appear in exactly one of `good_unit_ids`/`bad_unit_ids`.
+        predict_unit_ids: unit ids (subset of `single_unit_ids`) to classify
+            with the model trained on the full dataset - e.g. a handful of
+            example units to demo the classifier on. Defaults to all of
+            `single_unit_ids`.
         delta_time: coincidence window (ms) used to compute sorted/ground-truth
             spike-train agreement scores.
         n_components_pca: number of PCA components computed per channel,
@@ -71,15 +76,16 @@ def run(
             max_spikes_per_unit, sparse, ...).
         job_kwargs: SpikeInterface parallelization kwargs (n_jobs, ...).
         eval_seeds, eval_split_ratio, eval_thresh, eval_scale_data: passed to
-            `FractionalLogisticClassifier.evaluate` for cross-validation.
+            `FractionalLogisticClassifier.crossval_evaluate`/`train`.
 
     Returns:
         dict with keys:
             "we": the single-unit WaveformExtractor
             "data": output of `features.load_dataset` (dataset, predictors, ...)
             "feature_correlations": pd.DataFrame, dataset.corr()
-            "model": the fitted FractionalLogisticClassifier
-            "results": cross-validated evaluate() output (metric_data, metric_stats)
+            "model": the FractionalLogisticClassifier, trained on the full dataset
+            "results": crossval_evaluate() output (metric_data, metric_stats)
+            "predictions": model.predict() output for `predict_unit_ids`
     """
     job_kwargs = job_kwargs or {}
     we_kwargs = {**DEFAULT_EXTRACT_WAVEFORMS_KWARGS, **(extract_waveforms_kwargs or {})}
@@ -111,17 +117,21 @@ def run(
     # 3. basic statistics on features
     feature_correlations = data["dataset"].corr()
 
-    # 4. train the classifier
-    model = FractionalLogisticClassifier(data["predictors"])
-
-    # 5. evaluate cross-validated performance
-    results = model.evaluate(
+    # 4. cross-validated performance (each fold trains its own model)
+    model = FractionalLogisticClassifier(data["predictors"], thresh=eval_thresh)
+    results = model.crossval_evaluate(
         data["dataset"],
         seeds=eval_seeds,
         split_ratio=eval_split_ratio,
-        thresh=eval_thresh,
         scale_data=eval_scale_data,
     )
+
+    # 5. train the deployed model on the full dataset, then classify
+    # predict_unit_ids with it
+    model.train(data["dataset"], scale_data=eval_scale_data)
+
+    predict_unit_ids = data["dataset"].index if predict_unit_ids is None else [int(u) for u in predict_unit_ids]
+    predictions = model.predict(data["dataset"].loc[predict_unit_ids, model.predictors])
 
     return {
         "we": we,
@@ -129,4 +139,5 @@ def run(
         "feature_correlations": feature_correlations,
         "model": model,
         "results": results,
+        "predictions": predictions,
     }

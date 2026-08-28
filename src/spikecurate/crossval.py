@@ -110,38 +110,3 @@ def summarize_metrics(metric_data: np.ndarray) -> dict:
     }
 
 
-def fit_on_full_dataset(
-    model_formula: str,
-    dataset: pd.DataFrame,
-    scale_data: bool = False,
-    regularization: str = "elastic_net",
-    thresh: float = 0.8,
-    maxiter: int = 100,
-    cnvrg_tol: float = 1e-10,
-) -> dict:
-    """Fit (with regularization warm-start) and self-evaluate on the full dataset."""
-    predictors = [c for c in dataset.columns if c != LABEL_COL]
-    data = dataset.copy()
-    if scale_data:
-        scaler = StandardScaler()
-        data[predictors] = scaler.fit_transform(data[predictors])
-
-    model = sm.GLM.from_formula(model_formula, family=sm.families.Binomial(), data=data)
-    try:
-        warm_start = model.fit_regularized(method=regularization, maxiter=maxiter, cnvrg_tol=cnvrg_tol)
-        result = model.fit(start_params=warm_start.params, maxiter=1)
-    except Exception:
-        logger.warning("model could not be fit on this dataset - returning nan")
-        return {"model": np.nan, "precision": np.nan, "recall": np.nan}
-
-    test_label = data[LABEL_COL]
-    features = result.params.index[1:]
-    test_features = data.loc[:, features]
-    test_features.insert(0, "intercept", 1)
-
-    predictions = (result.predict(test_features) >= thresh).astype(int)
-    return {
-        "model": result,
-        "precision": metrics.precision_score(test_label, predictions, zero_division=0),
-        "recall": metrics.recall_score(test_label, predictions, zero_division=0),
-    }

@@ -52,19 +52,42 @@ result = spikecurate.run(
     single_unit_ids=single_unit_ids,   # e.g. sorting.unit_ids[sorting.get_property("KSLabel") == "good"]
     good_unit_ids=good_unit_ids,       # subset of single_unit_ids, >80% agreement with ground truth
     bad_unit_ids=bad_unit_ids,         # remaining subset of single_unit_ids
+    predict_unit_ids=single_unit_ids[:10],  # units to classify with the trained model; defaults to all
     job_kwargs=dict(n_jobs=-1, progress_bar=True),
 )
 
 result["feature_correlations"]           # pd.DataFrame: feature correlation matrix
-result["results"]["metric_stats"]        # median/std/95% CI precision & recall
-result["model"].formula                  # fitted GLM formula
+result["results"]["metric_stats"]        # median/std/95% CI precision & recall, cross-validated
+result["model"]                          # FractionalLogisticClassifier, trained on the full dataset
+result["predictions"]                    # DataFrame indexed by unit id: probability, predicted_label, predicted_quality
 ```
 
-Each pipeline stage is also usable standalone:
+### The classifier's own API
+
+`spikecurate.run` is a convenience pipeline built on top of
+`FractionalLogisticClassifier`, which has a scikit-learn-flavored API and is
+usable standalone (e.g. to retrain/re-predict without redoing waveform
+extraction, or to classify units engineered outside `spikecurate.run`):
+
+```python
+from spikecurate.model import FractionalLogisticClassifier
+
+model = FractionalLogisticClassifier(predictors)   # predictors: result["data"]["predictors"]
+model.crossval_evaluate(dataset)                    # cross-validated precision/recall (each fold trains its own fit)
+model.train(dataset)                                 # fit on the full labeled dataset; returns self
+model.predict(features)                              # DataFrame: probability, predicted_label, predicted_quality
+model.score(dataset)                                 # precision/recall of the trained model against dataset's own labels
+```
+
+`features` passed to `predict` just needs unit id as its index and the
+columns in `model.predictors` - it doesn't need a `quality_label` column
+(that's the whole point: predicting labels for units you don't already
+have labels for).
+
+Other pipeline stages are also usable standalone:
 
 ```python
 from spikecurate.features import load_dataset
-from spikecurate.model import FractionalLogisticClassifier
 from spikecurate.plotting import plot_precision_recall
 ```
 
