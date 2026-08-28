@@ -223,6 +223,14 @@ def load_dataset(
         logger.info("dropping %d/%d units with a non-finite feature value", len(bad_rows), len(dataset))
     dataset = dataset.drop(index=bad_rows)
 
+    # pin row order to unit id, independent of the order single_unit_ids
+    # happened to arrive in: crossval.crossval_metrics splits by row
+    # *position*, so an unpinned row order would make results depend on
+    # upstream extractor/id ordering despite a fixed seed - sorting here
+    # makes a given (dataset content, seed) pair reproduce the same split
+    # regardless of how single_unit_ids was ordered by the caller
+    dataset = dataset.sort_index()
+
     return {
         "dataset": dataset,
         "predictors": predictors,

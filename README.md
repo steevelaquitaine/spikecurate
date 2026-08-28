@@ -76,3 +76,11 @@ from spikecurate.plotting import plot_precision_recall
 - `good_unit_ids` and `bad_unit_ids` must partition `single_unit_ids`
   exactly (every single unit gets exactly one label) - `spikecurate.run`
   will raise `AssertionError` otherwise.
+- `features.load_dataset` always returns `dataset` sorted by unit id
+  (`dataset.sort_index()`). `FractionalLogisticClassifier.evaluate`'s
+  cross-validation splits train/test by row *position*
+  (`random.sample(range(n), n_train)`), so for a given `dataset` and
+  `seeds`, results are reproducible only if row order is pinned - passing
+  an unsorted dataset (e.g. one you built yourself, in whatever order the
+  sorting extractor's unit ids happened to come in) will still run, but
+  won't reproduce the same split as the same content sorted differently.
