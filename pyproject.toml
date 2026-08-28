@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,8 +8,16 @@ version = "0.1.0"
 description = "Fractional-logistic classifier to curate single-unit spike-sorting quality from SpikeInterface extractors"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
 authors = [{ name = "steeve laquitaine", email = "slqt1000@gmail.com" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+]
 dependencies = [
     "spikeinterface>=0.99,<0.101",
     "numpy>=1.21",

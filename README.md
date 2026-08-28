@@ -98,6 +98,10 @@ from spikecurate.features import load_dataset
 from spikecurate.plotting import plot_precision_recall
 ```
 
+## License
+
+GNU General Public License v3.0 - see [LICENSE](LICENSE).
+
 ## Notes
 
 - Requires a `principal_components` extension on the WaveformExtractor
