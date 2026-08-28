@@ -1,8 +1,7 @@
 """Fractional-logistic classifier for single-unit sorting quality.
 
-API is intentionally scikit-learn-flavored (train/predict, fit state stored
-on the instance) rather than the free-function style spikebias's
-src/nodes/models/Flc/models.py used.
+API is intentionally scikit-learn-flavored: train/predict, with fit state
+stored on the instance.
 """
 import numpy as np
 import pandas as pd

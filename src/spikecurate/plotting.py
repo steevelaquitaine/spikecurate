@@ -1,7 +1,4 @@
-"""Plotting helpers for classifier evaluation results.
-
-Vendored from spikebias's src/nodes/models/Flc/plotutils.py.
-"""
+"""Plotting helpers for classifier evaluation results."""
 import numpy as np
 import pandas as pd
 import seaborn as sns

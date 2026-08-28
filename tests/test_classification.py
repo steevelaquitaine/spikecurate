@@ -1,11 +1,10 @@
 """Regression tests against dataset/single_unit_quality_dataset.csv.
 
-This dataset is the engineered feature dataset produced (and explained) in
-demo_02.ipynb / demo_03.ipynb, checked into the repo so these tests don't
-need SpikeInterface extractors or the real spikebias dataset. They pin the
-classifier's numeric output on this fixed dataset, so a future change to
-the model/crossval/predict code that silently changes results - not just
-one that crashes - gets caught.
+This dataset is the engineered feature dataset explained in
+demo/demo_03.ipynb, checked into the repo so these tests don't need
+SpikeInterface extractors. They pin the classifier's numeric output on
+this fixed dataset, so a future change to the model/crossval/predict code
+that silently changes results - not just one that crashes - gets caught.
 """
 from pathlib import Path
 

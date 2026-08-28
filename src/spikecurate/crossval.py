@@ -1,7 +1,4 @@
-"""Cross-validated fitting/evaluation of a GLM (fractional logistic) classifier.
-
-Vendored and cleaned up from spikebias's src/nodes/models/Flc/utils.py.
-"""
+"""Cross-validated fitting/evaluation of a GLM (fractional logistic) classifier."""
 import copy
 import logging
 import random

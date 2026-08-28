@@ -1,5 +1,7 @@
 # spikecurate
 
+author: steeve laquitaine - laquitainesteeve@gmail.com
+
 [![tests](https://github.com/steevelaquitaine/spikecurate/actions/workflows/tests.yml/badge.svg)](https://github.com/steevelaquitaine/spikecurate/actions/workflows/tests.yml)
 [![regression](https://github.com/steevelaquitaine/spikecurate/actions/workflows/regression.yml/badge.svg)](https://github.com/steevelaquitaine/spikecurate/actions/workflows/regression.yml)
 
@@ -18,42 +20,19 @@ cross-validated precision/recall.
 pip install -e .
 ```
 
-## Demo notebooks
+## Demo notebook
 
-- `demo/demo_01.ipynb` runs the full pipeline (`spikecurate.run`) against
-  the real dataset produced by `spikebias`'s
-  `notebooks/2_results_editorial_requests/fig5e.ipynb`.
-- `demo/demo_02.ipynb` is a focused walkthrough of the classifier's own API
-  underneath `run` - `train`, `crossval_evaluate`, `predict`, `score` -
-  reusing the same pre-computed waveform extractor to skip straight to a
-  `dataset` of engineered features.
-- `demo/demo_03.ipynb` runs the same walkthrough as `demo_02.ipynb`, but
-  starting from `dataset/single_unit_quality_dataset.csv` - the engineered
-  feature dataset `demo_02.ipynb` produces, saved once and checked into
-  this repo. No SpikeInterface extractors, no real `spikebias` dataset
-  needed - just `pandas` + `spikecurate`, so it runs in seconds anywhere.
-
-`demo_01.ipynb` and `demo_02.ipynb` need the real `spikebias` dataset,
-which isn't bundled with this repo. To run them, use the same conda/mamba
-environment `spikebias` itself uses, which pins the exact package versions
-(notably `spikeinterface==0.100.8`) `demo_01.ipynb`'s recorded fidelity
-check depends on:
+`demo/demo_03.ipynb` walks through `FractionalLogisticClassifier`'s API -
+`train`, `crossval_evaluate`, `predict`, `score` - using the real,
+already-engineered feature dataset checked into this repo at
+`dataset/single_unit_quality_dataset.csv`. No SpikeInterface extractors
+needed, just `pandas` + `spikecurate`:
 
 ```bash
-# create the env (same spec as spikebias's envs/spikebias.yml)
-mamba env create -f envs/spikebias.yml --prefix ./envs/spikebias
-mamba activate ./envs/spikebias
-
-# install spikecurate itself into it
 pip install -e .
-
-# register it as a Jupyter kernel and launch
-python -m ipykernel install --user --name spikebias --display-name spikebias
-jupyter notebook demo/demo_01.ipynb  # or demo/demo_02.ipynb
+python -m ipykernel install --user --name spikecurate --display-name spikecurate
+jupyter notebook demo/demo_03.ipynb
 ```
-
-Update `SPIKEBIAS_DATASET_DIR` near the top of each notebook if your
-`spikebias` checkout isn't at `/home/steeve/steeve/epfl/code/spikebias`.
 
 ## Usage
 
@@ -114,12 +93,31 @@ from spikecurate.plotting import plot_precision_recall
   (`.github/workflows/tests.yml`).
 - `tests/test_classification.py`: pins the classifier's numeric output
   (`crossval_evaluate`, `train`+`score`, `predict`) against
-  `dataset/single_unit_quality_dataset.csv` - the real engineered dataset
-  from `demo_02.ipynb`/`demo_03.ipynb` - so a future change to the
+  `dataset/single_unit_quality_dataset.csv` - the same real engineered
+  dataset `demo_03.ipynb` walks through - so a future change to the
   model/crossval/predict code that silently changes results, not just one
   that crashes, gets caught. Needs no SpikeInterface extractors, so it's
   fast. Runs on every push to `master`
   (`.github/workflows/regression.yml`).
+
+## Citation
+
+If you use this package, please consider citing:
+
+> Laquitaine, S., Imbeni, M., Tharayil, J., Isbister, J. B., & Reimann, M. W. (2024).
+> Spike sorting biases and information loss in a detailed cortical model. *bioRxiv*.
+> https://doi.org/10.1101/2024.12.04.626805
+
+```bibtex
+@article{laquitaine2024spikesorting,
+  title   = {Spike sorting biases and information loss in a detailed cortical model},
+  author  = {Laquitaine, Steeve and Imbeni, Milo and Tharayil, Joseph and Isbister, James B. and Reimann, Michael W.},
+  journal = {bioRxiv},
+  year    = {2024},
+  doi     = {10.1101/2024.12.04.626805},
+  url     = {https://www.biorxiv.org/content/10.1101/2024.12.04.626805v1}
+}
+```
 
 ## License
 
@@ -134,7 +132,7 @@ GNU General Public License v3.0 - see [LICENSE](LICENSE).
   exactly (every single unit gets exactly one label) - `spikecurate.run`
   will raise `AssertionError` otherwise.
 - `features.load_dataset` always returns `dataset` sorted by unit id
-  (`dataset.sort_index()`). `FractionalLogisticClassifier.evaluate`'s
+  (`dataset.sort_index()`). `FractionalLogisticClassifier.crossval_evaluate`'s
   cross-validation splits train/test by row *position*
   (`random.sample(range(n), n_train)`), so for a given `dataset` and
   `seeds`, results are reproducible only if row order is pinned - passing

@@ -1,9 +1,4 @@
-"""Quality-metric feature engineering for sorted single units.
-
-Vendored and cleaned up from spikebias's src/nodes/models/Flc/dataloader.py
-and src/nodes/metrics/quality.get_scores, decoupled from that repo's
-config/logging setup so this package has no dependency on it.
-"""
+"""Quality-metric feature engineering for sorted single units."""
 import copy
 import logging
 
