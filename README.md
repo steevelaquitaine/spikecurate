@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/steevelaquitaine/spikecurate/master/asset/logo_spikecurate.png" alt="spikecurate logo" width="200">
+</p>
+
 # spikecurate
 
 author: steeve laquitaine - laquitainesteeve@gmail.com
