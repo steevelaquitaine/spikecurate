@@ -1,0 +1,43 @@
+
+# usage: 
+# 1. move to repo and create env with $ mamba env create -f envs/spikebias.yml --prefix ./envs/spikebias
+# 2. activate env: $ mamba activate ./envs/spikebias
+
+name: spikebias
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9.7
+  - pynwb=2.8.2
+  - ipykernel=6.29.5                   
+  - ipywidgets=8.0.6           # version important; or notebook and bluepy fail
+  - jupyter=1.0.0              # version important: or notebook and and bluepy fail
+  - ipython=8.18.1
+  - pandas=1.5.2               # version important; bluepy fails with 1.5.3
+  - pyyaml=6.0.2               # read yaml config files
+  - pytables=3.9.2             # read h5 files
+  - scikit-learn=1.6.0         # machine learning
+  - statsmodels=0.14.4         # stats
+  - networkx=3.2.1
+  - seaborn=0.13.2             # plotting
+  - matplotlib=3.8.4           # plotting
+  - MEAutility=1.5.1           # simulate recording probes
+  - PyWavelets=1.6.0
+  - wget=1.21.4                # simulate cell morphologies  
+  - numpy=1.26.4               # data processing
+  - scikit-posthocs=0.9.0      # posthoc statistics
+  - numba=0.59.1               # parallelized computing
+  - fastparquet=2024.11.0      # save parquet file
+  - pyarrow=16.1.0             # save parquet file
+  - umap-learn=0.5.3           # for spike clusterclustering
+  - python-louvain=0.16        # for spike clusterclustering
+  - pip=25.2.0                 # to install some packages
+  - openpyxl=3.1.5             # save source data file in excel                   
+  - pip:
+    - spikeinterface==0.100.8   # 0.100.8 critical for kilosort 4 (includes several merged fixes)
+    - mpi4py-mpich==3.1.2       # distributed computing on multiple computer nodes
+    - tmd==2.4.3                # simulate cell morphologies
+    - remfile==0.1.13           # on dandihub
+    - kilosort==4.0.6           # spike sorter install Kilosort 4.0
+    - neurom[plotly]==4.0.4     # simulate cell morphologies
+    - neuroconv==0.6.5          # convert to nwb

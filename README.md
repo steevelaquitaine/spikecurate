@@ -15,6 +15,30 @@ cross-validated precision/recall.
 pip install -e .
 ```
 
+## Demo notebook
+
+`demo/demo_01.ipynb` runs the full pipeline against the real dataset produced
+by `spikebias`'s `notebooks/2_results_editorial_requests/fig5e.ipynb` (not
+bundled with this repo). To run it, use the same conda/mamba environment
+`spikebias` itself uses, which pins the exact package versions (notably
+`spikeinterface==0.100.8`) the recorded fidelity check depends on:
+
+```bash
+# create the env (same spec as spikebias's envs/spikebias.yml)
+mamba env create -f envs/spikebias.yml --prefix ./envs/spikebias
+mamba activate ./envs/spikebias
+
+# install spikecurate itself into it
+pip install -e .
+
+# register it as a Jupyter kernel and launch
+python -m ipykernel install --user --name spikebias --display-name spikebias
+jupyter notebook demo/demo_01.ipynb
+```
+
+Update `SPIKEBIAS_DATASET_DIR` near the top of the notebook if your
+`spikebias` checkout isn't at `/home/steeve/steeve/epfl/code/spikebias`.
+
 ## Usage
 
 ```python
