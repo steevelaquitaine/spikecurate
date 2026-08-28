@@ -112,7 +112,7 @@ from spikecurate.plotting import plot_precision_recall
 - `tests/test_pipeline.py`: end-to-end smoke test of `spikecurate.run()`
   against synthetic SpikeInterface data. Runs on every push/PR
   (`.github/workflows/tests.yml`).
-- `tests/test_regression.py`: pins the classifier's numeric output
+- `tests/test_classification.py`: pins the classifier's numeric output
   (`crossval_evaluate`, `train`+`score`, `predict`) against
   `dataset/single_unit_quality_dataset.csv` - the real engineered dataset
   from `demo_02.ipynb`/`demo_03.ipynb` - so a future change to the

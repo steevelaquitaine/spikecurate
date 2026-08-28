@@ -17,5 +17,5 @@ jobs:
       - name: Install spikecurate + test dependencies
         run: pip install -e .[test]
 
-      - name: Run regression tests against dataset/single_unit_quality_dataset.csv
-        run: pytest tests/test_regression.py -v
+      - name: Run classification regression tests against dataset/single_unit_quality_dataset.csv
+        run: pytest tests/test_classification.py -v
