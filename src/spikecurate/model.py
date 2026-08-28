@@ -26,6 +26,10 @@ class FractionalLogisticClassifier:
     """
 
     def __init__(self, predictors, thresh: float = 0.8):
+        """Args:
+            predictors: quality-metric column names to use as GLM predictors.
+            thresh: probability threshold above which a unit is predicted "good".
+        """
         self.predictors = list(predictors)
         self.formula = self._build_formula(self.predictors)
         self.thresh = thresh
@@ -37,11 +41,13 @@ class FractionalLogisticClassifier:
 
     @staticmethod
     def _build_formula(predictors) -> str:
+        """Build the `quality_label ~ 1 + p1 + p2 + ...` GLM formula string."""
         variables = "".join(f" + {p}" for p in predictors)
         return f"{LABEL_COL} ~ 1{variables}"
 
     @property
     def is_trained(self) -> bool:
+        """Whether `train()` has been called."""
         return self.result_ is not None
 
     def train(

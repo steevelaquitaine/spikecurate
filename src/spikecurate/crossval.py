@@ -15,10 +15,12 @@ LABEL_COL = "quality_label"
 
 
 def _fit_glm(formula: str, data: pd.DataFrame):
+    """Fit an unregularized binomial GLM."""
     return sm.GLM.from_formula(formula, family=sm.families.Binomial(), data=data).fit()
 
 
 def _split_train_test(dataset: pd.DataFrame, split_ratio: float, seed: int):
+    """Split `dataset` into (train, test) by row position, seeded for reproducibility."""
     random.seed(seed)
     n_train = int(np.round(split_ratio * dataset.shape[0]))
     indices = list(range(dataset.shape[0]))
@@ -28,6 +30,7 @@ def _split_train_test(dataset: pd.DataFrame, split_ratio: float, seed: int):
 
 
 def _scale(train: pd.DataFrame, test: pd.DataFrame, predictors: list):
+    """Z-score `predictors` columns, fit on `train` only, applied to both."""
     scaler = StandardScaler()
     train = train.copy()
     test = test.copy()
@@ -94,6 +97,7 @@ def summarize_metrics(metric_data: np.ndarray) -> dict:
     recalls = [m["recall"] for m in metric_data]
 
     def _stats(values):
+        """Median, std, and 95% CI half-width of `values`."""
         return {
             "median": np.nanmedian(values),
             "std": np.nanstd(values),

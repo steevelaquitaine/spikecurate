@@ -8,6 +8,7 @@ author: steeve laquitaine - laquitainesteeve@gmail.com
 
 [![tests](https://github.com/steevelaquitaine/spikecurate/actions/workflows/tests.yml/badge.svg)](https://github.com/steevelaquitaine/spikecurate/actions/workflows/tests.yml)
 [![regression](https://github.com/steevelaquitaine/spikecurate/actions/workflows/regression.yml/badge.svg)](https://github.com/steevelaquitaine/spikecurate/actions/workflows/regression.yml)
+[![docs](https://github.com/steevelaquitaine/spikecurate/actions/workflows/docs.yml/badge.svg)](https://steevelaquitaine.github.io/spikecurate/)
 
 Curate sorted single-unit quality from SpikeInterface extractors, using a
 fractional-logistic classifier trained on SpikeInterface quality metrics.
@@ -22,6 +23,19 @@ cross-validated precision/recall.
 
 ```bash
 pip install -e .
+```
+
+## Documentation
+
+Full API reference (built with Sphinx from the docstrings in `src/spikecurate/`):
+**https://steevelaquitaine.github.io/spikecurate/**
+
+Rebuilds automatically on every push to `master`
+(`.github/workflows/docs.yml`). To build it locally:
+
+```bash
+pip install -e .[docs]
+sphinx-build -b html docs docs/_build/html
 ```
 
 ## Demo notebook

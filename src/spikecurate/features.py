@@ -54,6 +54,7 @@ def get_agreement_scores(sorting_true, sorting, delta_time: float = 1.3) -> pd.D
 
 
 def _mad(data: np.ndarray) -> float:
+    """Mean absolute deviation from the mean."""
     mean_data = np.mean(data)
     return np.mean(np.absolute(data - mean_data))
 
@@ -64,6 +65,7 @@ def _mad_ratio(spike_amp: np.ndarray, noise_amp: np.ndarray) -> float:
 
 
 def _best_site_mad_noise(we, max_chids, unit):
+    """Flattened waveform samples for `unit` on its best (extremum) channel."""
     wv, _ = we.get_waveforms(unit_id=unit, with_index=True)
     c_ids = we.sparsity.unit_id_to_channel_ids[unit]
     max_chid = max_chids[unit]
@@ -72,6 +74,7 @@ def _best_site_mad_noise(we, max_chids, unit):
 
 
 def _mad_ratio_all_units(unit_ids, we, spike_amp) -> list:
+    """`_mad_ratio` for every unit in `unit_ids`, against its best channel's spike amplitudes."""
     max_chids = ttools.get_template_extremum_channel(we, peak_sign="both")
     return [
         _mad_ratio(spike_amp[unit], _best_site_mad_noise(we, max_chids, unit))
@@ -80,6 +83,7 @@ def _mad_ratio_all_units(unit_ids, we, spike_amp) -> list:
 
 
 def _add_spike_amplitude_extension(we, load_if_exists: bool, job_kwargs: dict):
+    """Compute (or load) `we`'s spike_amplitudes extension, required by several quality metrics."""
     n_sites = we.get_num_channels()
     we.recording.set_property("gain_to_uV", np.ones((n_sites,)))
     we.recording.set_property("offset_to_uV", np.zeros((n_sites,)))

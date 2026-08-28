@@ -6,3 +6,4 @@ dist/
 .pytest_cache/
 .venv/
 venv/
+docs/_build/
