@@ -26,6 +26,7 @@ dependencies = [
     "statsmodels>=0.13",
     "matplotlib>=3.5",
     "seaborn>=0.12",
+    "numba>=0.56",
 ]
 
 [project.optional-dependencies]
