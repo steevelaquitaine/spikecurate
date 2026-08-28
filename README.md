@@ -1,5 +1,7 @@
 # spikecurate
 
+[![tests](https://github.com/steevelaquitaine/spikecurate/actions/workflows/tests.yml/badge.svg)](https://github.com/steevelaquitaine/spikecurate/actions/workflows/tests.yml)
+
 Curate sorted single-unit quality from SpikeInterface extractors, using a
 fractional-logistic classifier trained on SpikeInterface quality metrics.
 
