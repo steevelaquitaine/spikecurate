@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spikecurate"
+version = "0.1.0"
+description = "Fractional-logistic classifier to curate single-unit spike-sorting quality from SpikeInterface extractors"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "steeve laquitaine", email = "slqt1000@gmail.com" }]
+dependencies = [
+    "spikeinterface>=0.99,<0.101",
+    "numpy>=1.21",
+    "pandas>=1.4",
+    "scikit-learn>=1.0",
+    "statsmodels>=0.13",
+    "matplotlib>=3.5",
+    "seaborn>=0.12",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
