@@ -1,6 +1,7 @@
 # spikecurate
 
 [![tests](https://github.com/steevelaquitaine/spikecurate/actions/workflows/tests.yml/badge.svg)](https://github.com/steevelaquitaine/spikecurate/actions/workflows/tests.yml)
+[![regression](https://github.com/steevelaquitaine/spikecurate/actions/workflows/regression.yml/badge.svg)](https://github.com/steevelaquitaine/spikecurate/actions/workflows/regression.yml)
 
 Curate sorted single-unit quality from SpikeInterface extractors, using a
 fractional-logistic classifier trained on SpikeInterface quality metrics.
@@ -26,11 +27,17 @@ pip install -e .
   underneath `run` - `train`, `crossval_evaluate`, `predict`, `score` -
   reusing the same pre-computed waveform extractor to skip straight to a
   `dataset` of engineered features.
+- `demo/demo_03.ipynb` runs the same walkthrough as `demo_02.ipynb`, but
+  starting from `dataset/single_unit_quality_dataset.csv` - the engineered
+  feature dataset `demo_02.ipynb` produces, saved once and checked into
+  this repo. No SpikeInterface extractors, no real `spikebias` dataset
+  needed - just `pandas` + `spikecurate`, so it runs in seconds anywhere.
 
-Neither dataset is bundled with this repo. To run either notebook, use the
-same conda/mamba environment `spikebias` itself uses, which pins the exact
-package versions (notably `spikeinterface==0.100.8`) `demo_01.ipynb`'s
-recorded fidelity check depends on:
+`demo_01.ipynb` and `demo_02.ipynb` need the real `spikebias` dataset,
+which isn't bundled with this repo. To run them, use the same conda/mamba
+environment `spikebias` itself uses, which pins the exact package versions
+(notably `spikeinterface==0.100.8`) `demo_01.ipynb`'s recorded fidelity
+check depends on:
 
 ```bash
 # create the env (same spec as spikebias's envs/spikebias.yml)
@@ -99,6 +106,20 @@ Other pipeline stages are also usable standalone:
 from spikecurate.features import load_dataset
 from spikecurate.plotting import plot_precision_recall
 ```
+
+## Testing
+
+- `tests/test_pipeline.py`: end-to-end smoke test of `spikecurate.run()`
+  against synthetic SpikeInterface data. Runs on every push/PR
+  (`.github/workflows/tests.yml`).
+- `tests/test_regression.py`: pins the classifier's numeric output
+  (`crossval_evaluate`, `train`+`score`, `predict`) against
+  `dataset/single_unit_quality_dataset.csv` - the real engineered dataset
+  from `demo_02.ipynb`/`demo_03.ipynb` - so a future change to the
+  model/crossval/predict code that silently changes results, not just one
+  that crashes, gets caught. Needs no SpikeInterface extractors, so it's
+  fast. Runs on every push to `master`
+  (`.github/workflows/regression.yml`).
 
 ## License
 

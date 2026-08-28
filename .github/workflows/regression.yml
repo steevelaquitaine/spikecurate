@@ -1,0 +1,21 @@
+name: regression
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install spikecurate + test dependencies
+        run: pip install -e .[test]
+
+      - name: Run regression tests against dataset/single_unit_quality_dataset.csv
+        run: pytest tests/test_regression.py -v
