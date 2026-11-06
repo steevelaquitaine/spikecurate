@@ -14,9 +14,35 @@ logger = logging.getLogger(__name__)
 LABEL_COL = "quality_label"
 
 
-def _fit_glm(formula: str, data: pd.DataFrame):
-    """Fit an unregularized binomial GLM."""
-    return sm.GLM.from_formula(formula, family=sm.families.Binomial(), data=data).fit()
+def lasso_params(glm, C: float) -> np.ndarray:
+    """Weights of the lasso-regularized (L1) logistic regression with inverse regularization strength `C`
+    (scikit-learn convention: minimize C * sum(log-loss) + |w|_1, intercept not penalized), in the order of `glm.exog_names`."""
+    from sklearn.linear_model import LogisticRegression
+
+    names = list(glm.exog_names)
+    i = names.index("Intercept")
+    x = np.delete(np.asarray(glm.exog), i, axis=1)
+    fit = LogisticRegression(penalty="l1", solver="saga", C=C, max_iter=100000, tol=1e-8).fit(x, np.round(glm.endog).astype(int))
+    return np.insert(fit.coef_[0], i, fit.intercept_[0])
+
+
+class _LassoFit:
+    """Fitted lasso-regularized GLM: `params` (index = term names) and `predict(exog)`."""
+
+    def __init__(self, glm, params):
+        self.glm, self.params = glm, params
+
+    def predict(self, exog):
+        return pd.Series(self.glm.predict(np.asarray(self.params), np.asarray(exog)), index=exog.index)
+
+
+def _fit_glm(formula: str, data: pd.DataFrame, C: float = None):
+    """Fit a binomial GLM, unregularized by default or, when `C` is given, lasso-regularized (L1) with inverse
+    regularization strength `C` (predictors should then be z-scored)."""
+    glm = sm.GLM.from_formula(formula, family=sm.families.Binomial(), data=data)
+    if C is None:
+        return glm.fit()
+    return _LassoFit(glm, pd.Series(lasso_params(glm, C), index=glm.exog_names))
 
 
 def _split_train_test(dataset: pd.DataFrame, split_ratio: float, seed: int):
@@ -46,8 +72,9 @@ def single_fold_metrics(
     seed: int = 0,
     thresh: float = 0.8,
     scale_data: bool = False,
+    C: float = None,
 ) -> dict:
-    """Precision/recall of one random train/test split."""
+    """Precision/recall of one random train/test split (lasso-regularized with inverse strength `C` if given)."""
     assert LABEL_COL in dataset.columns, f"dataset must contain a '{LABEL_COL}' column"
 
     train_dataset, test_dataset = _split_train_test(dataset, split_ratio, seed)
@@ -56,7 +83,7 @@ def single_fold_metrics(
         predictors = [c for c in dataset.columns if c != LABEL_COL]
         train_dataset, test_dataset = _scale(train_dataset, test_dataset, predictors)
 
-    result = _fit_glm(model_formula, train_dataset)
+    result = _fit_glm(model_formula, train_dataset, C=C)
 
     test_label = test_dataset[LABEL_COL]
     test_dataset = test_dataset.drop(columns=[LABEL_COL])
@@ -79,12 +106,13 @@ def crossval_metrics(
     seeds: np.ndarray = None,
     thresh: float = 0.8,
     scale_data: bool = False,
+    C: float = None,
 ) -> np.ndarray:
     """Precision/recall across many random train/test splits (one per seed)."""
     seeds = np.arange(0, 100, 1) if seeds is None else seeds
     results = [
         single_fold_metrics(
-            model_formula, dataset, split_ratio=split_ratio, seed=seed, thresh=thresh, scale_data=scale_data
+            model_formula, dataset, split_ratio=split_ratio, seed=seed, thresh=thresh, scale_data=scale_data, C=C
         )
         for seed in range(len(seeds))
     ]

@@ -25,11 +25,14 @@ class FractionalLogisticClassifier:
         model.predict(features)                # good/bad label for new units
     """
 
-    def __init__(self, predictors, thresh: float = 0.8):
+    def __init__(self, predictors, thresh: float = 0.8, C: float = None):
         """Args:
             predictors: quality-metric column names to use as GLM predictors.
             thresh: probability threshold above which a unit is predicted "good".
+            C: inverse strength of an L1 (lasso) penalty on the weights (scikit-learn convention, larger = weaker);
+                None (default) fits without penalty. Use with z-scored predictors (`scale_data=True`).
         """
+        self.C = C
         self.predictors = list(predictors)
         self.formula = self._build_formula(self.predictors)
         self.thresh = thresh
@@ -78,8 +81,11 @@ class FractionalLogisticClassifier:
 
         glm = sm.GLM.from_formula(self.formula, family=sm.families.Binomial(), data=data)
         try:
-            warm_start = glm.fit_regularized(method=regularization, maxiter=maxiter, cnvrg_tol=cnvrg_tol)
-            self.result_ = glm.fit(start_params=warm_start.params, maxiter=1)
+            if self.C is None:
+                warm_start = glm.fit_regularized(method=regularization, maxiter=maxiter, cnvrg_tol=cnvrg_tol)
+                self.result_ = glm.fit(start_params=warm_start.params, maxiter=1)
+            else:
+                self.result_ = glm.fit(start_params=crossval.lasso_params(glm, self.C), maxiter=1)
         except Exception:
             # the regularized warm-start can fail to bracket a solution on
             # small/degenerate datasets (e.g. near-perfect separation) -
@@ -145,6 +151,7 @@ class FractionalLogisticClassifier:
             seeds=seeds,
             thresh=self.thresh,
             scale_data=scale_data,
+            C=self.C,
         )
         metric_stats = crossval.summarize_metrics(metric_data)
         return {"metric_stats": metric_stats, "metric_data": metric_data}
